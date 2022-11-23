@@ -1,3 +1,6 @@
+import jwt from "jsonwebtoken";
+
+
 export const validateUserWithID = async (userID, password, db, bcrypt) => {
     let ret = false;
 
@@ -20,6 +23,9 @@ export const validateEmail = (email) => {
 };
 
 export const validateName = (name) => {
+    if(name.length<2){
+        return false;
+    }
     return String(name)
         .match(
             /^[a-zA-ZÀ-ÿ\u00f1\u00d1]+(\s*[a-zA-ZÀ-ÿ\u00f1\u00d1]*)*[a-zA-ZÀ-ÿ\u00f1\u00d1]+$/
@@ -41,3 +47,28 @@ export const validatePassword = (password) => {
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,20}$/
         );
 };
+
+export const verifyToken = (req, res, next)=>{
+    req.user = {userID:null, verified:false}
+    const { privateKey } = process.env
+    const bearerHeader = req.headers['authorization']
+    if(typeof bearerHeader!=='undefined') {
+        const bearerToken = bearerHeader.split(' ')[1]
+        try {
+            const decode = jwt.verify(bearerToken, privateKey);
+            if (decode.userID) {
+                req.user = {userID: decode.userID, verified: true};
+                next();
+            }
+        } catch (error) {
+            if(error instanceof jwt.TokenExpiredError){
+                return res.status(403).json("Token Expired");
+            }else{
+                return res.sendStatus(403)
+            }
+        }
+
+    } else {
+        return res.sendStatus(403).json("incorrect token")
+    }
+}

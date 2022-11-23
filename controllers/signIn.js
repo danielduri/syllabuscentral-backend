@@ -1,5 +1,8 @@
+import jwt from "jsonwebtoken";
+
 const handleSignIn = (req, res, db, bcrypt) => {
 
+    const {privateKey} = process.env
     const {email, password} = req.body;
 
     if(!email || !password){
@@ -8,22 +11,27 @@ const handleSignIn = (req, res, db, bcrypt) => {
     }
 
     db.select('email', 'passwordHash').from('users').where('email', '=', email)
-        .then(data => {
+        .then( data => {
             const isValid = bcrypt.compareSync(password, data[0].passwordHash);
+            let token = null;
             if (isValid) {
-                db.select('userID', 'userName', 'email', 'departmentID', 'userType')
+                db.select('*')
                     .from('users')
                     .where('email', '=', email)
-                    .then(user => {
-                        res.json(user[0]);
+                    .then( user => {
+                        token = jwt.sign({userID: user[0].userID}, privateKey, {expiresIn: '5m'})
+                        res.json({token: token});
                     }).catch(err => {
                     res.status(400).json('unable to get user');
+                    return;
                 })
             } else {
                 res.status(400).json('wrong credentials');
+                return;
             }
         }).catch(err => {
         res.status(400).json('wrong credentials')
+        return;
     })
 }
 

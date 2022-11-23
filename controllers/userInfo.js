@@ -1,17 +1,20 @@
 const userInfo = (req, res, db) => {
 
-    const {userID} = req.body;
+    const {userID} = req.user;
 
     if(!userID){
         res.status(400).json('incorrect form submission');
         return;
     }
 
-    db.select('userID', 'email', 'userName', 'userType', 'departmentID').from('users').where({
+    db.select('email', 'userName', 'userType', 'departmentID', 'schoolID').from('users').where({
         'userID': userID
     }).then(data => {
         if(data[0]!==undefined){
-            res.json(data[0]);
+            const userInfo = {
+                userInfo: data[0]
+            }
+            res.json(userInfo);
         }else{
             res.status(400).json('wrong credentials');
         }
