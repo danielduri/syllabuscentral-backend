@@ -83,8 +83,6 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
 app.use(cors());
 
-
-
 app.get('/', (req, res) => {res.send('Server is up')});
 app.get('/userInfo', verifyToken, (req, res) => {userInfo(req, res, db)});
 app.get('/getModel', verifyToken, (req, res) => {getModel(req, res, db)});
