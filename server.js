@@ -16,11 +16,11 @@ app.use("/img", express.static('img'))
 const db = knex({
     client: 'pg',
     connection: {
-        host : 'localhost',
-        port : 6000,
-        user : '',
-        password : '',
-        database : 'postgres'
+        host : process.env.host,
+        port : process.env.dbPort,
+        user : process.env.user,
+        password : process.env.password,
+        database : process.env.database
     }
 });
 
