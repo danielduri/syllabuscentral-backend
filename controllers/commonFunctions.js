@@ -36,7 +36,7 @@ export const validatePassword = (password) => {
     //La contraseña debe contener al menos 6 caracteres, entre ellos
     //al menos una letra mayúscula, una letra minúscula, un número y un caracter especial.
     if(password==="pass"){
-        return true;
+        //return true;
     }
     if(password.length<6){
         return false;
