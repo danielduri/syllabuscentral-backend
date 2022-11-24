@@ -106,5 +106,8 @@ export const createUser = async (req, res, db, bcrypt) => {
         userType: 0
     }).into('users').returning("email")
         .then(data=>{return res.json(data[0])})
-        .catch(err => {return res.status(400).json("Something went wrong creating user")})
+        .catch(err => {
+            console.log(err);
+            return res.status(400).json("Something went wrong creating user")
+        })
 }
