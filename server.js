@@ -1,8 +1,8 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import knex from "knex";
-import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-dotenv.config()
+//import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+//dotenv.config()
 import cors from "cors";
 import multer from "multer"
 import {handleSignIn} from "./controllers/signIn.js";
@@ -50,6 +50,8 @@ import {editUser} from "./controllers/identityManagement/editUser.js";
 import {promoteUser} from "./controllers/identityManagement/promoteUser.js";
 
 const app = express();
+
+app.use("/img", express.static('img'))
 
 const db = knex({
     client: 'pg',
