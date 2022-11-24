@@ -27,11 +27,7 @@ app.use("/img", express.static('img'))
 const db = knex({
     client: 'pg',
     connection: {
-        host : process.env.host,
-        port : process.env.dbPort,
-        user : process.env.user,
-        password : process.env.password,
-        database : process.env.database
+        connectionString: process.env.DATABASE_URL,
     }
 });
 
