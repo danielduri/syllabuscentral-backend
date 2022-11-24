@@ -1,8 +1,8 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import knex from "knex";
-import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-dotenv.config()
+//import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+//dotenv.config()
 import handleSignIn from "./controllers/signIn.js";
 import cors from "cors";
 import {changeEmail, changeName, changePassword, createUser} from "./controllers/userActions.js";
