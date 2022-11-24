@@ -27,12 +27,6 @@ const db = knex({
 app.use(express.json());
 app.use(cors());
 
-
-app.get('/', (req, res) => {
-    console.log("DEBUG ONLY");
-    db.select('*').from('users').then(response => res.json(response));
-});
-
 app.get('/', (req, res) => {res.send('Server is up')});
 app.get('/userInfo', verifyToken, (req, res) => {userInfo(req, res, db)});
 app.post('/createUser', (req, res) => createUser(req, res, db, bcrypt))
