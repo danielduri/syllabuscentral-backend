@@ -11,8 +11,6 @@ import userInfo from "./controllers/userInfo.js";
 
 const app = express();
 
-app.use("/img", express.static('img'))
-
 const db = knex({
     client: 'pg',
     connection: {
