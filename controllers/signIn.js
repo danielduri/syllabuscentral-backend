@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const handleSignIn = (req, res, db, bcrypt) => {
+export const handleSignIn = (req, res, db, bcrypt) => {
 
     const {privateKey} = process.env
     const {email, password} = req.body;
@@ -19,20 +19,16 @@ const handleSignIn = (req, res, db, bcrypt) => {
                     .from('users')
                     .where('email', '=', email)
                     .then( user => {
-                        token = jwt.sign({userID: user[0].userID}, privateKey, {expiresIn: '5m'})
+                        token = jwt.sign({userID: user[0].userID}, privateKey, {expiresIn: '1h'})
                         res.json({token: token});
                     }).catch(err => {
                     res.status(400).json('unable to get user');
-                    return;
                 })
             } else {
                 res.status(400).json('wrong credentials');
-                return;
             }
         }).catch(err => {
-        res.status(400).json('wrong credentials')
-        return;
-    })
+            console.log(err)
+            res.status(400).json('wrong credentials')
+        })
 }
-
-export default handleSignIn;

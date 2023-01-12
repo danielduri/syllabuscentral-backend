@@ -1,4 +1,4 @@
-const userInfo = (req, res, db) => {
+export const userInfo = (req, res, db) => {
 
     const {userID} = req.user;
 
@@ -23,5 +23,3 @@ const userInfo = (req, res, db) => {
         res.status(400).json('unable to get user');
     })
 }
-
-export default userInfo;
