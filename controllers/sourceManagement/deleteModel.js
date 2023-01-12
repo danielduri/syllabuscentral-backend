@@ -1,6 +1,5 @@
 import {verifyUserTypeAndSchool} from "../../functions/verifyUserTypeAndSchool.js";
 import {getCoordinatorIDFromCourseID} from "../../functions/idGetters.js";
-import {uploadModel} from "./uploadModel.js";
 import {checkModuleCount, checkSubjectCount} from "../../functions/checkCounts.js";
 
 export function deleteModel(req, res, db){

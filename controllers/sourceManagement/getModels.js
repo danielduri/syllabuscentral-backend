@@ -3,7 +3,6 @@ import {getDegreeNameFromID, getDepartmentNameFromID, getUserNameFromID} from ".
 
 export const getModels = (req, res, db) => {
 
-    const {search} = req.body;
     const {userID} = req.user;
 
     if(!userID){
@@ -15,13 +14,6 @@ export const getModels = (req, res, db) => {
         if(user.userType>=0){
 
             let searchText=""
-            let code=null;
-            if(search){
-                if(!Number.isNaN(Number.parseInt(searchText))){
-                    code=Number.parseInt(searchText)
-                }
-                searchText=search
-            }
 
             db.select("degreeID", "name", "courseID", "year", "shorthand", "ects", "departmentID", "coordinatorID", "type")
                 .from("courses").where("schoolID", "=", user.schoolID)
