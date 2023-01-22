@@ -1,5 +1,4 @@
-import {verifyUserTypeAndSchool} from "../../functions/verifyUserTypeAndSchool.js";
-import {getCoordinatorIDFromCourseID} from "../../functions/idGetters.js";
+import {verifyUserInfo, verifyUserPermissionForCourse} from "../../functions/verifyUser.js";
 import {uploadModel} from "./uploadModel.js";
 
 export function editModel(req, res, db){
@@ -11,24 +10,16 @@ export function editModel(req, res, db){
         return;
     }
 
-    verifyUserTypeAndSchool(userID, db).then(async user => {
-        if (user.userType >= 0) {
-            let cont = false;
-            if (user.userType === 0) {
-                await getCoordinatorIDFromCourseID(model.courseID).then(response => {
-                        if (user.userID === response){
-                            cont=true;
-                        }
-                })
-            }else{
-                cont=true;
-            }
 
-            if(cont){
+    verifyUserInfo(userID, db).then(async user => {
+        if (user.userType >= 0) {
+            if(await verifyUserPermissionForCourse(user, model.code, db)){
                 model.action="update"
-                if (uploadModel(model, db, res, user)){
-                    console.log("Updated model", model)
-                }
+                await uploadModel(model, db, res, user).then(resp => {
+                    console.log("Edited model", model)
+                })
+            }else {
+                res.status(500).json("Forbidden action")
             }
         }
     })

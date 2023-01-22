@@ -1,84 +1,110 @@
-import {checkModuleCount, checkSubjectCount} from "../../functions/checkCounts.js";
+import {checkModuleCount, checkSubjectCount, createModule, createSubject} from "../../functions/ModuleSubjectActions.js";
+import {verifyDepartment, verifyModel, verifyModule, verifySubject, verifyYear} from "../../functions/verifyModel.js";
+import {getModuleIDFromCourseID, getSubjectIDFromCourseID} from "../../functions/idGetters.js";
 
-export function uploadModel(model, db, res, user){
+export async function uploadModel(model, db, res, user) {
 
-    const {degree, year, period, language, code, name, intlName, shorthand,
+    const {
+        degree, year, period, language, code, name, intlName, shorthand,
         type, ECTS, department, coordinator, minContents, program,
-        results, evaluation, literature, competences} = model
+        results, evaluation, literature, competences
+    } = model
 
     let {subject, module} = model
 
-    const {basic, general, specific} = competences
+    const verifyResult = verifyModel(model)
+    if (verifyResult !== "valid") {
+        res.status(400).json(verifyResult)
+    } else {
+        const vYear = await verifyYear(model, db)
+        const vDept = await verifyDepartment(model, db)
+        const vSubject = await verifySubject(model, db)
+        const vModule = await verifyModule(model, db)
 
-    let validated=true
-
-    if(degree===null || degree===undefined || !Number.isInteger(degree)){
-        validated=false
-        res.status(400).json("degreeID")
-    }else if(year===null || year===undefined || !Number.isInteger(year)){
-        validated=false
-        res.status(400).json("year")
-    }else if(period===null || period===undefined || !Number.isInteger(period)){
-        validated=false
-        res.status(400).json("period")
-    }else if(language===null || language===undefined || language===""){
-        validated=false
-        res.status(400).json("language")
-    }else if(code===null || code===undefined || !Number.parseInt(code)){
-        validated=false
-        res.status(400).json("code")
-    }else if(name===null || name===undefined || name===""){
-        validated=false
-        res.status(400).json("courseName")
-    }else if(intlName===null || intlName===undefined || intlName===""){
-        validated=false
-        res.status(400).json("intlName")
-    }else if(shorthand===null || shorthand===undefined || shorthand===""){
-        validated=false
-        res.status(400).json("shorthand")
-    }else if(type===null || type===undefined || type===""){
-        validated=false
-        res.status(400).json("type")
-    }else if(ECTS===null || ECTS===undefined || ECTS%0.5!==0){
-        validated=false
-        res.status(400).json("ECTS")
-    }else if(subject===null || subject===undefined || subject===""){
-        validated=false
-        res.status(400).json("subject")
-    }else if(module===null || module===undefined || module===""){
-        validated=false
-        res.status(400).json("module")
-    }else if(department===null || department===undefined || !Number.isInteger(department)){
-        validated=false
-        res.status(400).json("department")
-    }else if(coordinator===null || coordinator===undefined || !Number.isInteger(coordinator)){
-        validated=false
-        res.status(400).json("coordinator")
-    }else if(minContents===null || minContents===undefined || !Array.isArray(minContents)){
-        validated=false
-        res.status(400).json("minContents")
-    }else if(program===null || program===undefined || !Array.isArray(program)){
-        validated=false
-        res.status(400).json("program")
-    }else if(results===null || results===undefined || !Array.isArray(results)){
-        validated=false
-        res.status(400).json("results")
-    }else if(evaluation===null || evaluation===undefined || evaluation===""){
-        validated=false
-        res.status(400).json("evaluation")
-    }else if(literature===null || literature===undefined || !Array.isArray(literature)){
-        validated=false
-        res.status(400).json("literature")
-    }else if(basic===null || basic===undefined || !Array.isArray(basic)){
-        validated=false
-        res.status(400).json("basic")
-    }else if(general===null || general===undefined || !Array.isArray(general)){
-        validated=false
-        res.status(400).json("general")
-    }else if(specific===null || specific===undefined || !Array.isArray(specific)){
-        validated=false
-        res.status(400).json("specific")
-    }else{
+        if(!vYear){
+            res.status(400).json("invalid year")
+        }else if(!vDept){
+            res.status(400).json("invalid department")
+        }else if(vSubject!=="create" && !Number.isInteger(vSubject)){
+            res.status(400).json("invalid subject")
+        }else if(vModule!=="create" && !Number.isInteger(vModule)){
+            res.status(400).json("invalid module")
+        }else{
+            if(vSubject==="create"){
+                subject = await createSubject(model.subject, model.degree, db);
+            }
+            if(vModule==="create"){
+                module = await createModule(model.module, model.degree, db)
+            }
+            if(model.action==="create"){
+                db.insert({
+                    ects: ECTS,
+                    courseid: code,
+                    competences: JSON.stringify(competences),
+                    coordinatorID: coordinator,
+                    degreeID: degree,
+                    departmentID: department,
+                    evaluation: evaluation,
+                    internationalName: intlName,
+                    language: language,
+                    literature: literature,
+                    minContents: minContents,
+                    moduleID: module,
+                    name: name,
+                    period: period,
+                    program: program,
+                    results: results,
+                    shorthand: shorthand.toUpperCase(),
+                    subjectID: subject,
+                    type: type,
+                    year: year,
+                    schoolID: user.schoolID
+                }).into("courses").returning("courseid").then(done => {
+                    res.json("OK");
+                    return true;
+                }).catch(error => {
+                    console.log(error)
+                    res.status(400).json("Database error");
+                })
+            }else if(model.action==="update"){
+                const oldModule = await getModuleIDFromCourseID(model.code, user.schoolID, db)
+                const oldSubject = await getSubjectIDFromCourseID(model.code, user.schoolID, db)
+                db("courses").update({
+                    ects: ECTS,
+                    competences: JSON.stringify(competences),
+                    coordinatorID: coordinator,
+                    degreeID: degree,
+                    departmentID: department,
+                    evaluation: evaluation,
+                    internationalName: intlName,
+                    language: language,
+                    literature: literature,
+                    minContents: minContents,
+                    moduleID: module,
+                    name: name,
+                    period: period,
+                    program: program,
+                    results: results,
+                    shorthand: shorthand.toUpperCase(),
+                    subjectID: subject,
+                    type: type,
+                    year: year
+                }).where("courseid", model.code).andWhere("schoolID", user.schoolID)
+                    .returning(["subjectID", "moduleID"]).then((resp) => {
+                    checkSubjectCount(oldSubject, db)
+                    checkModuleCount(oldModule, db)
+                    res.json("OK");
+                    return true;
+                }).catch(error => {
+                    console.log(error)
+                    res.status(400).json("Error during update");
+                })
+            }else{
+                res.status(400).json("invalid action")
+            }
+        }
+    }
+    /*
 
         db.select("degreeDuration").from("degrees").where("degreeID", "=", degree).then(async data => {
             //check degree existence, and year within its duration
@@ -88,7 +114,7 @@ export function uploadModel(model, db, res, user){
                     //check if shorthand's length is <=5
                     if (shorthand.length <= 5) {
                         //check if type is correct
-                        if (type === "Obligatoria" || type === "Formación Básica" || type === "Optativa" || type === "Trabajo de fin de grado") {
+                        if (type === "Obligatoria" || type === "Formación básica" || type === "Optativa" || type === "Trabajo de fin de grado") {
                             //check if ECTS is [TBD]
                             if (ECTS % 0.5 === 0) {
                                 //check existance OR create new
@@ -155,7 +181,7 @@ export function uploadModel(model, db, res, user){
                                                 if(model.action==="create"){
                                                     db.insert({
                                                         ects: ECTS,
-                                                        courseID: code,
+                                                        courseid: code,
                                                         competences: JSON.stringify(competences),
                                                         coordinatorID: coordinator,
                                                         degreeID: degree,
@@ -175,7 +201,7 @@ export function uploadModel(model, db, res, user){
                                                         type: type,
                                                         year: year,
                                                         schoolID: user.schoolID
-                                                    }).into("courses").returning("courseID").then(done => {
+                                                    }).into("courses").returning("courseid").then(done => {
                                                         res.json("OK");
                                                         return validated;
                                                     }).catch(error => {
@@ -185,7 +211,7 @@ export function uploadModel(model, db, res, user){
                                                 }
                                                 if(model.action==="update"){
                                                     //get old module and subject in case they change
-                                                    db.select(["moduleID", "subjectID"]).from("courses").where("courseID", model.code).andWhere("schoolID", user.schoolID)
+                                                    db.select(["moduleID", "subjectID"]).from("courses").where("courseid", model.code).andWhere("schoolID", user.schoolID)
                                                         .then(ret => {
                                                             const oldModule = ret[0].moduleID, oldSubject = ret[0].subjectID
 
@@ -209,7 +235,7 @@ export function uploadModel(model, db, res, user){
                                                                 subjectID: subject,
                                                                 type: type,
                                                                 year: year
-                                                            }).where("courseID", model.code).andWhere("schoolID", user.schoolID)
+                                                            }).where("courseid", model.code).andWhere("schoolID", user.schoolID)
                                                                 .returning(["subjectID", "moduleID"]).then((resp) => {
                                                                 checkSubjectCount(oldSubject, db)
                                                                 checkModuleCount(oldModule, db)
@@ -255,7 +281,9 @@ export function uploadModel(model, db, res, user){
             res.status(400).json("invalid degree")
         })
 
-    }
+
 
     return validated;
+
+     */
 }

@@ -1,8 +1,10 @@
-import {verifyUserTypeAndSchool} from "../../functions/verifyUserTypeAndSchool.js";
+import {verifyUserInfo} from "../../functions/verifyUser.js";
 import {getDegreeNameFromID, getDepartmentNameFromID, getUserNameFromID} from "../../functions/nameGetters.js";
+
 
 export const getModels = (req, res, db) => {
 
+    const {search} = req.body;
     const {userID} = req.user;
 
     if(!userID){
@@ -10,47 +12,55 @@ export const getModels = (req, res, db) => {
         return;
     }
 
-    verifyUserTypeAndSchool(userID, db).then(user => {
+    verifyUserInfo(userID, db).then(user => {
         if(user.userType>=0){
 
             let searchText=""
+            if(search){
+                searchText=search
+            }
 
-            db.select("degreeID", "name", "courseID", "year", "shorthand", "ects", "departmentID", "coordinatorID", "type")
+            db.select("degreeID", "name", "courseid", "year", "shorthand", "ects", "departmentID", "coordinatorID", "type")
                 .from("courses").where("schoolID", "=", user.schoolID)
-                .andWhereILike("name", `%${searchText}%`)
-                .orWhereILike("shorthand", `%${searchText}%`)
                 .modify(function(queryBuilder) {
-                    if (Number.parseInt(searchText)) {
-                        queryBuilder.orWhere("courseID", "=", Number.parseInt(searchText));
+                    if(user.userType===0){
+                        queryBuilder.andWhere({"departmentID": user.departmentID});
                     }
-                })
-                //.orWhere("courseID", "=", code)
-                .orderBy("degreeID")
+                }).andWhere(function() {
+                    this.whereILike("name", `%${searchText}%`)
+                        .orWhereILike("shorthand", `${searchText}%`)
+                        .orWhere(db.raw(`courseid::TEXT LIKE '${searchText}%'`))
+            })
+                .orderBy(["degreeID", "courseid"])
                 .then(async data => {
                     let response = []
                     for (const item of data) {
+                        /*
                         let add = true;
                         if(user.userType===0){
-                            if(item.coordinatorID!==userID){
-                                add=false;
+                            if(item.departmentID !== user.departmentID){
+                                add=false
                             }
                         }
                         if(add){
-                            const course = {
-                                degree: await getDegreeNameFromID(item.degreeID, db),
-                                name: item.name,
-                                courseID: item.courseID,
-                                shorthand: item.shorthand,
-                                ECTS: item.ects,
-                                department: await getDepartmentNameFromID(item.departmentID, db),
-                                coordinator: await getUserNameFromID(item.coordinatorID, db),
-                                type: item.type
-                            }
-                            response.push(course)
+                         */
+
+                        const course = {
+                            degree: await getDegreeNameFromID(item.degreeID, db),
+                            name: item.name,
+                            courseid: item.courseid,
+                            shorthand: item.shorthand,
+                            ECTS: item.ects,
+                            department: await getDepartmentNameFromID(item.departmentID, db),
+                            coordinator: await getUserNameFromID(item.coordinatorID, db),
+                            type: item.type
                         }
+                        response.push(course)
                     }
                     res.json(response);
                 })
+
+
 
 
         }else{

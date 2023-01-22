@@ -1,6 +1,5 @@
-import {verifyUserTypeAndSchool} from "../../functions/verifyUserTypeAndSchool.js";
-import {getCoordinatorIDFromCourseID} from "../../functions/idGetters.js";
-import {checkModuleCount, checkSubjectCount} from "../../functions/checkCounts.js";
+import {verifyUserInfo, verifyUserPermissionForCourse} from "../../functions/verifyUser.js";
+import {checkModuleCount, checkSubjectCount} from "../../functions/ModuleSubjectActions.js";
 
 export function deleteModel(req, res, db){
     const {model} = req.body;
@@ -11,25 +10,18 @@ export function deleteModel(req, res, db){
         return;
     }
 
-    verifyUserTypeAndSchool(userID, db).then(async user => {
+    verifyUserInfo(userID, db).then(async user => {
         if (user.userType >= 0) {
-            let cont = false;
-            if (user.userType === 0) {
-                await getCoordinatorIDFromCourseID(model.courseID).then(response => {
-                        if (user.userID === response){
-                            cont=true;
-                        }
-                })
-            }else{
-                cont=true;
-            }
 
-            if(cont){
-                db("courses").where({"courseID": model, "schoolID": user.schoolID}).del().returning(["subjectID", "moduleID"]).then((resp) => {
+            if(await verifyUserPermissionForCourse(user, model, db)){
+                db("courses").where({"courseid": model, "schoolID": user.schoolID}).del().returning(["subjectID", "moduleID"]).then((resp) => {
                     checkSubjectCount(resp[0].subjectID, db)
                     checkModuleCount(resp[0].moduleID, db)
+                    console.log("Deleted model ", model)
                     res.json("OK")
                 })
+            }else {
+                res.status(500).json("Forbidden action")
             }
         }
     })
