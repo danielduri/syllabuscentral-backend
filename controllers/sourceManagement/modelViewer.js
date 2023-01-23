@@ -128,7 +128,7 @@ export const modelViewer = (req, res, db) => {
                     if (user.userType >= 1) {
                         const p2 = getDepartmentIDFromName(department, user.schoolID, db).then(async data => {
                             resp.department = data
-                            await db.select('userName', 'userID').from('users').where({'departmentID': data.departmentID}).then(data => {
+                            await db.select('userName', 'userID').from('users').where({'departmentID': data}).then(data => {
                                 resp.coordinators = data
                             }).catch(error => console.log(error))
 

@@ -1,6 +1,6 @@
 export function getDepartmentIDFromName (departmentName, schoolID, db) {
     return db.select('departmentID').from('departments').where({'departmentName': departmentName, 'departmentSchoolID': schoolID}).then(data => {
-        return data[0];
+        return data[0].departmentID;
     }).catch(error => console.log(error))
 }
 
