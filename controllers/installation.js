@@ -52,9 +52,9 @@ export async function installation(req, res, db, bcrypt) {
 
         return Promise.all(promises).then(trx.commit).catch(trx.rollback);
     }).then(() => {
-        res.json("Installation successful")
+        res.send("Installation successful")
     }).catch(err => {
-        res.status(400).json("Installation failed")
+        res.send("Installation failed")
     })
 
 }

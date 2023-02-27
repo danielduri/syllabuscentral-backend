@@ -1,38 +1,31 @@
 export function getDepartmentIDFromName (departmentName, schoolID, db) {
     return db.select('departmentID').from('departments').where({'departmentName': departmentName, 'departmentSchoolID': schoolID}).then(data => {
-        if(data[0]){
-            return data[0].departmentID;
-        }else{
-            return undefined
-        }
+        return data[0] ? data[0].departmentID : undefined;
     }).catch(error => console.log(error))
 }
 
 export function getDepartmentIDFromShorthand (departmentShorthand, schoolID, db) {
     return db.select('departmentID').from('departments').where({'departmentShorthand': departmentShorthand.toUpperCase(), 'departmentSchoolID': schoolID}).then(data => {
-        if(data[0]){
-            return data[0].departmentID;
-        }else{
-            return undefined
-        }
+        return data[0] ? data[0].departmentID : undefined;
     }).catch(error => console.log(error))
 }
 
 export function getModuleIDFromName (moduleName, degreeID, db) {
     return db.select('moduleID').from('modules').where({'moduleName': moduleName, 'moduleDegree': degreeID}).then(data => {
+        //TODO safe usage
         return data[0];
     }).catch(error => console.log(error))
 }
 
 export function getModuleIDFromCourseID (courseID, schoolID, db) {
     return db.select('moduleID').from('courses').where({'courseid': courseID, 'schoolID': schoolID}).then(data => {
-        return data[0].moduleID;
+        return data[0] ? data[0].moduleID : undefined;
     }).catch(error => console.log(error))
 }
 
 export function getSubjectIDFromCourseID (courseID, schoolID, db) {
     return db.select('subjectID').from('courses').where({'courseid': courseID, 'schoolID': schoolID}).then(data => {
-        return data[0].subjectID;
+        return data[0] ? data[0].subjectID : undefined;
     }).catch(error => console.log(error))
 }
 
@@ -57,13 +50,13 @@ export function getUserIDFromEmail (userEmail, db) {
 
 export function getCoordinatorIDFromCourseID (courseID, schoolID, db) {
     return db.select('coordinatorID').from('courses').where({'courseid': courseID, "schoolID": schoolID}).then(data => {
-        return data[0].coordinatorID;
+        return data[0] ? data[0].coordinatorID : undefined;
     }).catch(error => console.log(error))
 }
 
 export function getCoordinatorIDFromDegreeID (degreeID, db) {
     return db.select('coordinatorID').from('degrees').where({'degreeID': degreeID}).then(data => {
-        return data[0].coordinatorID;
+        return data[0] ? data[0].coordinatorID : undefined;
     }).catch(error => console.log(error))
 }
 
@@ -95,42 +88,42 @@ export function getDegreeIDFromRawName (rawName, schoolID, db) {
 
 export const getDepartmentIDFromUserID = async (userID, db) => {
     return await db.select("departmentID").from("users").where("userID", "=", userID).then(data => {
-        return data[0].departmentID
+        return data[0] ? data[0].departmentID : undefined
     }).catch(error => console.log(error))
 }
 
 export const getSchoolIDFromUserID = async (userID, db) => {
     return await db.select("schoolID").from("users").where("userID", "=", userID).then(data => {
-        return data[0].schoolID
+        return data[0] ? data[0].schoolID : undefined
     }).catch(error => console.log(error))
 }
 
 export const getSchoolIDFromCourseID = async (courseID, db) => {
     return await db.select("schoolID").from("courses").where("courseid", "=", courseID).then(data => {
-        return data[0].schoolID
+        return data[0] ? data[0].schoolID : undefined
     }).catch(error => console.log(error))
 }
 
 export const getSchoolIDFromDegreeID = async (degreeID, db) => {
     return await db.select("schoolID").from("degrees").where("degreeID", "=", degreeID).then(data => {
-        return data[0].schoolID
+        return data[0] ? data[0].schoolID : undefined
     }).catch(error => console.log(error))
 }
 
 export const getSchoolIDFromDepartmentID = async (departmentID, db) => {
     return await db.select("departmentSchoolID").from("departments").where("departmentID", "=", departmentID).then(data => {
-        return data[0].departmentSchoolID
+        return data[0] ? data[0].departmentSchoolID : undefined
     }).catch(error => console.log(error))
 }
 
 export const getSchoolIDFromModuleID = async (moduleID, db) => {
     return await db.select("moduleSchool").from("modules").where("moduleID", "=", moduleID).then(data => {
-        return data[0].moduleSchool
+        return data[0] ? data[0].moduleSchool : undefined
     }).catch(error => console.log(error))
 }
 
 export const getSchoolIDFromSubjectID = async (subjectID, db) => {
     return await db.select("subjectSchool").from("subjects").where("subjectID", "=", subjectID).then(data => {
-        return data[0].subjectSchool
+        return data[0] ? data[0].subjectSchool : undefined
     }).catch(error => console.log(error))
 }
