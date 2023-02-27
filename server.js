@@ -48,6 +48,7 @@ import {newUser} from "./controllers/identityManagement/newUser.js";
 import {deleteUser} from "./controllers/identityManagement/deleteUser.js";
 import {editUser} from "./controllers/identityManagement/editUser.js";
 import {promoteUser} from "./controllers/identityManagement/promoteUser.js";
+import {installation} from "./controllers/installation.js";
 
 const app = express();
 
@@ -141,6 +142,7 @@ app.post('/uploadDoc', upload.single('file'), function (req, res) {
 })
  */
 app.post('/uploadDoc', verifyToken, upload.single('file'), (req, res) => uploadDoc(res, filename, fileLocation))
+app.post('/installation', (req, res) => installation(req, res, db, bcrypt));
 
 
 
