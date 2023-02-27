@@ -1,8 +1,8 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import knex from "knex";
-//import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-//dotenv.config()
+import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+dotenv.config()
 import cors from "cors";
 import multer from "multer"
 import {handleSignIn} from "./controllers/signIn.js";
@@ -47,22 +47,18 @@ import {getUsers} from "./controllers/identityManagement/getUsers.js";
 import {newUser} from "./controllers/identityManagement/newUser.js";
 import {deleteUser} from "./controllers/identityManagement/deleteUser.js";
 import {editUser} from "./controllers/identityManagement/editUser.js";
-import {promoteUser} from "./controllers/identityManagement/promoteUser.js";
 import {installation} from "./controllers/installation.js";
 
 const app = express();
 
-app.use(cors());
-
-app.use("/img", express.static('img'))
-
 const db = knex({
     client: 'pg',
     connection: {
-        connectionString: process.env.DATABASE_URL,
-        ssl: {
-            rejectUnauthorized: false
-        }
+        host : 'localhost',
+        port : 6000,
+        user : '',
+        password : '',
+        database : 'postgres'
     }
 });
 
@@ -81,8 +77,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage })
 
+app.use(cors())
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
+
 
 app.get('/', (req, res) => {res.send('Server is up')});
 app.get('/userInfo', verifyToken, (req, res) => {userInfo(req, res, db)});
@@ -134,7 +132,6 @@ app.put('/switchSchool', verifyToken, (req, res) => switchSchool(req, res, db));
 app.put('/editUser', verifyToken, (req, res) => editUser(req, res, db, bcrypt));
 app.put('/newUser', verifyToken, (req, res) => newUser(req, res, db, bcrypt));
 app.put('/deleteUser', verifyToken, (req, res) => deleteUser(req, res, db));
-app.put('/promoteUser', verifyToken, (req, res) => promoteUser(req, res, db));
 
 /*
 app.post('/uploadDoc', upload.single('file'), function (req, res) {
@@ -142,7 +139,7 @@ app.post('/uploadDoc', upload.single('file'), function (req, res) {
 })
  */
 app.post('/uploadDoc', verifyToken, upload.single('file'), (req, res) => uploadDoc(res, filename, fileLocation))
-app.get('/install', (req, res) => installation(req, res, db, bcrypt));
+app.get('/install', (req, res) => installation(req, res, db, bcrypt)
 
 
 
