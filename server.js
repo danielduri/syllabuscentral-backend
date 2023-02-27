@@ -139,7 +139,7 @@ app.post('/uploadDoc', upload.single('file'), function (req, res) {
 })
  */
 app.post('/uploadDoc', verifyToken, upload.single('file'), (req, res) => uploadDoc(res, filename, fileLocation))
-app.get('/install', (req, res) => installation(req, res, db, bcrypt)
+app.get('/install', (req, res) => installation(req, res, db, bcrypt))
 
 
 
