@@ -1,6 +1,5 @@
 //Returns a promise that will yield 0 if USER, 1 if ADMIN, 2 if SUPERADMIN
-import {getCoordinatorIDFromCourseID} from "./idGetters.js";
-import {getDepartmentIDFromUserID} from "./dataGetters.js";
+import {getDepartmentIDFromUserID, getCoordinatorIDFromCourseID} from "./idGetters.js";
 
 export const verifyUserInfo = async (userID, db) => {
     return await db.select('userID', 'userType', 'schoolID', 'departmentID').from('users').where({

@@ -4,7 +4,7 @@ export class Syllabus {
     year: number
     period: number
     language: string
-    code: number
+    code: string
     name: string
     intlName: string
     shorthand: string

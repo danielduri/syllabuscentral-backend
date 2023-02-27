@@ -1,3 +1,5 @@
+import {getSchoolIDFromDegreeID} from "./idGetters.js";
+
 export function checkSubjectCount(subjectID, db){
     return db.select("subjectCount").from("subjects").where({"subjectID": subjectID}).then((count) => {
         if(count[0].subjectCount===0){
@@ -18,19 +20,21 @@ export function checkModuleCount(moduleID, db){
     })
 }
 
-export function createSubject(subject, degree, db){
+export async function createSubject(subject, degree, db) {
     return db.insert({
         subjectName: subject,
-        subjectDegree: degree
+        subjectDegree: degree,
+        subjectSchool: await getSchoolIDFromDegreeID(degree, db)
     }).into("subjects").returning("subjectID").then(id => {
         return id[0].subjectID;
     })
 }
 
-export function createModule(module, degree, db){
+export async function createModule(module, degree, db) {
     return db.insert({
         moduleName: module,
-        moduleDegree: degree
+        moduleDegree: degree,
+        moduleSchool: await getSchoolIDFromDegreeID(degree, db)
     }).into("modules").returning("moduleID").then(id => {
         return id[0].moduleID;
     })

@@ -1,8 +1,17 @@
 import fs from "fs";
-import PDFParser from "pdf2json";
-import {getJSONs} from "../documentParsing/parser.js";
+import {recognize} from "../azureNeural/azureNeural.js";
 
 const parseDocument = (docName, docLocation, res) => {
+    const file = fs.createReadStream(`${docLocation}/${docName}`)
+    recognize(file).then(r => {
+        fs.unlinkSync(`${docLocation}/${docName}`)
+        console.log(r)
+        res.json(r);
+    }).catch((e) => {
+            res.status(400).json("error")
+            console.log("Azure ", e)
+    })
+    /*
     const pdfParser = new PDFParser();
 
     pdfParser.on("pdfParser_dataError", errData => {
@@ -20,6 +29,8 @@ const parseDocument = (docName, docLocation, res) => {
     });
 
     pdfParser.loadPDF(`${docLocation}/${docName}`).then(() => null);
+
+     */
 
 }
 

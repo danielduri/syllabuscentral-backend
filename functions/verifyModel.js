@@ -1,10 +1,5 @@
-import {
-    getDegreeDurationFromDegreeID,
-    getDepartmentIDFromUserID,
-    getModuleDegreeFromID,
-    getSubjectDegreeFromID
-} from "./dataGetters.js";
-import {getModuleIDFromName, getSubjectIDFromName} from "./idGetters.js";
+import {getDegreeDurationFromDegreeID, getModuleDegreeFromID, getSubjectDegreeFromID} from "./dataGetters.js";
+import {getDepartmentIDFromUserID, getModuleIDFromName, getSubjectIDFromName} from "./idGetters.js";
 
 export const verifyModel = (model) => {
     const {degree, year, period, language, code, name, intlName, shorthand,
@@ -134,8 +129,3 @@ export const verifyModule = async (model, db) => {
         })
     }
 }
-
-
-
-//TODO: Production.
-

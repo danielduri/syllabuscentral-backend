@@ -1,5 +1,6 @@
 import {verifyUserInfo} from "../../functions/verifyUser.js";
 import {getDepartmentIDFromName, getModuleIDFromName, getSubjectIDFromName, getUserIDFromName} from "../../functions/idGetters.js";
+import {rawify} from "../../functions/misc.js";
 
 export const modelViewer = (req, res, db) => {
 
@@ -83,14 +84,7 @@ export const modelViewer = (req, res, db) => {
                         if (degree.label) {
                             str = degree.label
                         }
-                        const rawName = str.toLowerCase()
-                            .replaceAll(" ", "")
-                            .replaceAll("á", "a")
-                            .replaceAll("é", "e")
-                            .replaceAll("í", "i")
-                            .replaceAll("ó", "o")
-                            .replaceAll("ú", "u")
-                            .replaceAll("ñ", "n")
+                        const rawName = rawify(str)
 
                         const p1 = db.select('degreeDisplayName', 'degreeID', 'degreeDuration').from('degrees').where({'degreeRawName': rawName}).then(async data => {
                             resp.degree = data[0]

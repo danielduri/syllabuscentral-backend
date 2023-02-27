@@ -1,3 +1,5 @@
+import {getSchoolNameFromID} from "../functions/dataGetters.js";
+
 export const userInfo = (req, res, db) => {
 
     const {userID} = req.user;
@@ -9,13 +11,18 @@ export const userInfo = (req, res, db) => {
 
     db.select('email', 'userName', 'userType', 'departmentID', 'schoolID').from('users').where({
         'userID': userID
-    }).then(data => {
-        if(data[0]!==undefined){
+    }).then( async data => {
+        if (data[0] !== undefined) {
             const userInfo = {
-                userInfo: data[0]
+                email: data[0].email,
+                userName: data[0].userName,
+                userType: data[0].userType,
+                departmentID: data[0].departmentID,
+                schoolID: data[0].schoolID,
+                schoolName: await getSchoolNameFromID(data[0].schoolID, db)
             }
             res.json(userInfo);
-        }else{
+        } else {
             res.status(400).json('wrong credentials');
         }
     }).catch(err => {
