@@ -52,6 +52,8 @@ import {installation} from "./controllers/installation.js";
 
 const app = express();
 
+app.use(cors());
+
 app.use("/img", express.static('img'))
 
 const db = knex({
@@ -79,7 +81,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage })
 
-app.use(cors())
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
 
