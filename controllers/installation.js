@@ -33,7 +33,7 @@ export async function installation(req, res, db, bcrypt) {
             userID: 0,
             email: "super@syllabus.com",
             userName: "admin",
-            userPassword: hash,
+            passwordHash: hash,
             userType: 2,
             schoolID: 0,
             departmentID: 0
