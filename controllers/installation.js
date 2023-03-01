@@ -9,7 +9,7 @@ export async function installation(req, res, db, bcrypt) {
         await db("schools").insert({
             schoolName: "Administración Central"
         }).returning("schoolID").then((schoolID) => {
-            school1ID = schoolID
+            school1ID = schoolID[0].schoolID
             console.log("Created school 1")
         }).catch((error) => {
             console.log(error)
@@ -27,7 +27,7 @@ export async function installation(req, res, db, bcrypt) {
             departmentShorthand: "ADM",
             departmentSchoolID: school1ID
         }).returning("departmentID").then((departmentID) => {
-            dept1ID = departmentID
+            dept1ID = departmentID[0].departmentID
             console.log("Created department 1")
         }).catch((error) => {
             console.log(error)
@@ -50,7 +50,7 @@ export async function installation(req, res, db, bcrypt) {
             schoolID: school1ID,
             departmentID: dept1ID
         }).returning("userID").then((userID) => {
-            user1ID = userID
+            user1ID = userID[0].userID
             console.log("Created user 1")
         }).catch((error) => {
             console.log(error)
