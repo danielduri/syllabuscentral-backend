@@ -9,6 +9,8 @@ export const userInfo = (req, res, db) => {
         return;
     }
 
+    console.log("entered function",userID)
+
     db.select('email', 'userName', 'userType', 'departmentID', 'schoolID').from('users').where({
         'userID': userID
     }).then( async data => {
