@@ -14,7 +14,7 @@ const validateUserWithID = async (userID, password, db, bcrypt) => {
 export const validatePassword = (password) => {
     //La contraseña debe contener al menos 6 caracteres, entre ellos
     //al menos una letra mayúscula, una letra minúscula, un número y un caracter especial.
-    if(password==="pass"){
+    if(process.env.NODE_ENV !== 'production' && password==="pass"){
         return true;
     }
     if(password.length<6){

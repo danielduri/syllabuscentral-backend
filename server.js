@@ -1,8 +1,9 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import knex from "knex";
-import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-dotenv.config()
+if (process.env.NODE_ENV !== 'production') {
+    import('dotenv').then(dotenv => dotenv.config());
+}
 import cors from "cors";
 import multer from "multer"
 import {handleSignIn} from "./controllers/signIn.js";
@@ -48,10 +49,11 @@ import {newUser} from "./controllers/identityManagement/newUser.js";
 import {deleteUser} from "./controllers/identityManagement/deleteUser.js";
 import {editUser} from "./controllers/identityManagement/editUser.js";
 import {installation} from "./controllers/installation.js";
+import {promoteUser} from "./controllers/identityManagement/promoteUser.js";
 
 const app = express();
 
-const db = knex({
+let db = knex({
     client: 'pg',
     connection: {
         host : 'localhost',
@@ -61,6 +63,18 @@ const db = knex({
         database : 'postgres'
     }
 });
+
+if(process.env.NODE_ENV === 'production'){
+    db = knex({
+        client: 'pg',
+        connection: {
+            connectionString: process.env.DATABASE_URL,
+            ssl: {
+                rejectUnauthorized: false
+            }
+        }
+    });
+}
 
 let filename = ""
 const fileLocation = "pdfs"
@@ -82,7 +96,7 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
 
 
-app.get('/', (req, res) => {res.send('Server is up')});
+app.get('/', (req, res) => {res.send(`Server is up, ${process.env.NODE_ENV}`)});
 app.get('/userInfo', verifyToken, (req, res) => {userInfo(req, res, db)});
 app.get('/getModel', verifyToken, (req, res) => {getModel(req, res, db)});
 app.get('/getDegreeCoordinators', verifyToken, (req, res) => {getDegreeCoordinators(req, res, db)});
@@ -104,34 +118,35 @@ app.put('/changePassword', verifyToken, (req, res) => changePassword(req, res, d
 
 app.put('/modelViewer', verifyToken, (req, res) => modelViewer(req, res, db));
 app.put('/getModels', verifyToken, (req, res) => getModels(req, res, db));
-app.put('/newModel', verifyToken, (req, res) => newModel(req, res, db));
+app.post('/newModel', verifyToken, (req, res) => newModel(req, res, db));
 app.put('/editModel', verifyToken, (req, res) => editModel(req, res, db));
 app.put('/deleteModel', verifyToken, (req, res) => deleteModel(req, res, db));
 
-app.put('/newDegree', verifyToken, (req, res) => newDegree(req, res, db));
+app.post('/newDegree', verifyToken, (req, res) => newDegree(req, res, db));
 app.put('/deleteDegree', verifyToken, (req, res) => deleteDegree(req, res, db));
 app.put('/editDegree', verifyToken, (req, res) => editDegree(req, res, db));
 
-app.put('/newDepartment', verifyToken, (req, res) => newDepartment(req, res, db));
+app.post('/newDepartment', verifyToken, (req, res) => newDepartment(req, res, db));
 app.put('/deleteDepartment', verifyToken, (req, res) => deleteDepartment(req, res, db));
 app.put('/editDepartment', verifyToken, (req, res) => editDepartment(req, res, db));
 
 app.put('/editModule', verifyToken, (req, res) => editModule(req, res, db));
-app.put('/newModule', verifyToken, (req, res) => newModule(req, res, db));
+app.post('/newModule', verifyToken, (req, res) => newModule(req, res, db));
 app.put('/deleteModule', verifyToken, (req, res) => deleteModule(req, res, db));
 
 app.put('/editSubject', verifyToken, (req, res) => editSubject(req, res, db));
-app.put('/newSubject', verifyToken, (req, res) => newSubject(req, res, db));
+app.post('/newSubject', verifyToken, (req, res) => newSubject(req, res, db));
 app.put('/deleteSubject', verifyToken, (req, res) => deleteSubject(req, res, db));
 
 app.put('/editSchool', verifyToken, (req, res) => editSchool(req, res, db));
-app.put('/newSchool', verifyToken, (req, res) => newSchool(req, res, db));
+app.post('/newSchool', verifyToken, (req, res) => newSchool(req, res, db));
 app.put('/deleteSchool', verifyToken, (req, res) => deleteSchool(req, res, db));
 app.put('/switchSchool', verifyToken, (req, res) => switchSchool(req, res, db));
 
 app.put('/editUser', verifyToken, (req, res) => editUser(req, res, db, bcrypt));
-app.put('/newUser', verifyToken, (req, res) => newUser(req, res, db, bcrypt));
+app.post('/newUser', verifyToken, (req, res) => newUser(req, res, db, bcrypt));
 app.put('/deleteUser', verifyToken, (req, res) => deleteUser(req, res, db));
+app.put('/promoteUser', verifyToken, (req, res) => promoteUser(req, res, db));
 
 /*
 app.post('/uploadDoc', upload.single('file'), function (req, res) {
