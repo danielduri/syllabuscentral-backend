@@ -17,6 +17,8 @@ export async function installation(req, res, db, bcrypt) {
         })
     }
 
+    console.log("school1ID", school1ID)
+
     const dept1 = await getDepartmentNameFromID(1, db)
     let dept1ID
     if (dept1 === undefined) {
@@ -32,6 +34,8 @@ export async function installation(req, res, db, bcrypt) {
             res.send(error)
         })
     }
+
+    console.log("dept1ID", dept1ID)
 
     const user1 = await getUserNameFromID(1, db)
     let user1ID
@@ -53,6 +57,8 @@ export async function installation(req, res, db, bcrypt) {
             res.send(error)
         })
     }
+
+    console.log("user1ID", user1ID)
 
     res.send("Installation complete")
 
