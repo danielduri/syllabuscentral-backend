@@ -11,6 +11,9 @@ export async function installation(req, res, db, bcrypt) {
         }).returning("schoolID").then((schoolID) => {
             school1ID = schoolID.schoolID
             console.log("Created school 1")
+        }).catch((error) => {
+            console.log(error)
+            res.send(error)
         })
     }
 
@@ -24,6 +27,9 @@ export async function installation(req, res, db, bcrypt) {
         }).returning("departmentID").then(() => {
             dept1ID = departmentID.departmentID
             console.log("Created department 1")
+        }).catch((error) => {
+            console.log(error)
+            res.send(error)
         })
     }
 
@@ -42,6 +48,9 @@ export async function installation(req, res, db, bcrypt) {
         }).returning("userID").then(() => {
             user1ID = userID.userID
             console.log("Created user 1")
+        }).catch((error) => {
+            console.log(error)
+            res.send(error)
         })
     }
 
