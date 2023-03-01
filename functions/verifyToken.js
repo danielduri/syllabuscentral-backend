@@ -10,6 +10,7 @@ export const verifyToken = (req, res, next)=>{
             const decode = jwt.verify(bearerToken, privateKey);
             if (decode.userID) {
                 req.user = {userID: decode.userID, verified: true};
+                console.log("verified", req.user)
                 next();
             }
         } catch (error) {
