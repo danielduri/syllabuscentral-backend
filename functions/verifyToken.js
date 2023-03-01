@@ -6,9 +6,9 @@ export const verifyToken = (req, res, next)=>{
     const bearerHeader = req.headers['authorization']
     if(typeof bearerHeader!=='undefined') {
         const bearerToken = bearerHeader.split(' ')[1]
-        console.log("Token:",bearerToken)
         try {
             const decode = jwt.verify(bearerToken, privateKey);
+            console.log("decode", decode)
             if (decode.userID) {
                 req.user = {userID: decode.userID, verified: true};
                 console.log("verified", req.user)
