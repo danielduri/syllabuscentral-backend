@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 
 export const verifyToken = (req, res, next)=>{
+    console.log("entered verifyToken", req.headers)
     req.user = {userID:null, verified:false}
     const { privateKey } = process.env
     const bearerHeader = req.headers['authorization']
