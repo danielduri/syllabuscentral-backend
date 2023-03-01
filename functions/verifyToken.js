@@ -8,11 +8,11 @@ export const verifyToken = (req, res, next)=>{
         const bearerToken = bearerHeader.split(' ')[1]
         try {
             const decode = jwt.verify(bearerToken, privateKey);
-            console.log("decode", decode)
-            if (decode.userID) {
+            if (decode.userID!==undefined) {
                 req.user = {userID: decode.userID, verified: true};
-                console.log("verified", req.user)
                 next();
+            }else {
+                return res.sendStatus(403).json("incorrect token")
             }
         } catch (error) {
             if(error instanceof jwt.TokenExpiredError){
