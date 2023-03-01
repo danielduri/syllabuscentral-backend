@@ -46,7 +46,7 @@ export const isEditable = async (user, userID, db) => {
         return "self"
     }
 
-    if (userID === 0) {
+    if (userID === 1) {
         return "admin"
     }
 
