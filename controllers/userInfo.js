@@ -9,8 +9,6 @@ export const userInfo = (req, res, db) => {
         return;
     }
 
-    console.log("entered function",userID)
-
     db.select('email', 'userName', 'userType', 'departmentID', 'schoolID').from('users').where({
         'userID': userID
     }).then( async data => {
@@ -23,7 +21,6 @@ export const userInfo = (req, res, db) => {
                 schoolID: data[0].schoolID,
                 schoolName: await getSchoolNameFromID(data[0].schoolID, db)
             }
-            console.log(userInfo)
             res.json(userInfo);
         } else {
             res.status(400).json('wrong credentials');
