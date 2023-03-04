@@ -5,7 +5,6 @@ if (process.env.NODE_ENV !== 'production') {
     import('dotenv').then(dotenv => dotenv.config());
 }
 import cors from "cors";
-import multer from "multer"
 import {handleSignIn} from "./controllers/signIn.js";
 import {verifyToken} from "./functions/verifyToken.js";
 import {userInfo} from "./controllers/userInfo.js";
@@ -51,8 +50,13 @@ import {editUser} from "./controllers/identityManagement/editUser.js";
 import {installation} from "./controllers/installation.js";
 import {promoteUser} from "./controllers/identityManagement/promoteUser.js";
 
+import ExpressWs from 'express-ws';
+import fs from "fs";
+import * as path from "path";
 const app = express();
 app.use(cors())
+let expressWsInstance = ExpressWs(app);
+const pdfDir = './pdfs';
 
 let db = knex({
     client: 'pg',
@@ -79,22 +83,9 @@ if(process.env.NODE_ENV === 'production'){
 
 let filename = ""
 const fileLocation = "pdfs"
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, fileLocation)
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        filename=file.originalname.substring(0, file.originalname.length-4) + '-' + uniqueSuffix + file.originalname.substring(file.originalname.length-4)
-        cb(null, filename)
-    }
-})
-
-const upload = multer({ storage: storage })
 
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
-
 
 app.get('/', (req, res) => {res.send(`Server is up, ${process.env.NODE_ENV}`)});
 app.get('/userInfo', verifyToken, (req, res) => {userInfo(req, res, db)});
@@ -152,11 +143,66 @@ app.put('/promoteUser', verifyToken, (req, res) => promoteUser(req, res, db));
 app.post('/uploadDoc', upload.single('file'), function (req, res) {
     res.json("OK")
 })
+
  */
-app.post('/uploadDoc', verifyToken, upload.single('file'), (req, res) => uploadDoc(res, filename, fileLocation))
+
+app.ws('/uploadDoc', (ws, req) => {
+
+    let stream
+
+    ws.on('error', (err) => {
+        console.log(err);
+    })
+
+    ws.on('message', (msg) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+
+        if(typeof msg === 'string'){
+            try{
+                const data = JSON.parse(msg)
+                filename=data.name.substring(0, data.name.length-4) + '-' + uniqueSuffix + data.name.substring(data.name.length-4)
+                console.log(filename)
+                ws.send("name")
+                const filePath = path.join(pdfDir, filename);
+                stream = fs.createWriteStream(filePath);
+            }catch (e) {
+                console.log(e)
+            }
+        }else{
+            if(stream!==undefined){
+                stream.write(msg);
+                console.log("Written");
+                ws.send("file")
+                uploadDoc(ws, filename, pdfDir)
+            }else{
+                ws.send("error")
+                ws.close()
+            }
+        }
+    });
+
+    ws.on('close', () => {
+        console.log("Close");
+        stream.end();
+    });
+
+})
+
+/*
+app.ws('/wstest', function(ws, req) {
+    ws.send("Hello")
+    ws.on('message', function(msg) {
+        console.log(msg);
+        ws.send(msg)
+        if (msg === 'close') {
+            ws.close();
+        }
+    });
+    console.log('socket', req.testing);
+});
+ */
+
 app.get('/install', (req, res) => installation(req, res, db, bcrypt))
-
-
 
 app.listen(process.env.PORT || 3001, () => {
     console.log(`application is running on port ${process.env.PORT ? process.env.PORT : '3001'}`)

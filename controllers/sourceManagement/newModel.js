@@ -17,7 +17,7 @@ export async function newModel(req, res, db) {
         await getCourseNameFromID(model.code, user.schoolID, db).then(async data => {
             if (data) {
                 console.log(data)
-                res.json(`code already in use for course ${data.name}`)
+                res.json(`code already in use for course ${data}`)
             } else {
                 if (user.userType >= 0) {
                     if (await verifyUserPermissionForNewCourse(user, model.department, db)) {

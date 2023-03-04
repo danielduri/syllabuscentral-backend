@@ -1,14 +1,16 @@
 import fs from "fs";
 import {recognize} from "../azureNeural/azureNeural.js";
 
-const parseDocument = (docName, docLocation, res) => {
+const parseDocument = (docName, docLocation, ws) => {
     const file = fs.createReadStream(`${docLocation}/${docName}`)
-    recognize(file).then(r => {
+    recognize(file, ws).then(r => {
+        r.status = "OK"
         fs.unlinkSync(`${docLocation}/${docName}`)
         console.log(r)
-        res.json(r);
+        ws.send(JSON.stringify(r));
+        ws.close()
     }).catch((e) => {
-            res.status(400).json("error")
+            ws.send("error")
             console.log("Azure ", e)
     })
     /*
@@ -34,8 +36,8 @@ const parseDocument = (docName, docLocation, res) => {
 
 }
 
-export const uploadDoc = (res, fileName, fileLocation) => {
+export const uploadDoc = (ws, fileName, fileLocation) => {
     console.log("Uploaded ", fileName)
-    parseDocument(fileName, fileLocation, res)
+    parseDocument(fileName, fileLocation, ws)
 }
 

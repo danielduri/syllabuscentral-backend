@@ -23,7 +23,7 @@ import {Syllabus} from "../documentParsing/syllabus.js";
 *
 * @summary analyze a document using a model by ID
 */
-export async function recognize(file) {
+export async function recognize(file, ws) {
     /*
       Remember to remove the key from your code when you're done, and never post it publicly. For production, use
       secure methods to store and access your credentials. For more information, see
@@ -43,6 +43,12 @@ export async function recognize(file) {
     const {
         documents: [document],
     } = await poller.pollUntilDone();
+
+    poller.onProgress(({ status }) => {
+        ws.send(JSON.stringify({status: status}))
+    })
+
+
 
     if (!document) {
         throw new Error("Expected at least one document in the result.");
