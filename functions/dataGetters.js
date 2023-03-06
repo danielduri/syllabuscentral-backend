@@ -93,3 +93,9 @@ export const getSchoolNameFromID = async (schoolID, db) => {
         return data[0] ? data[0].schoolName : undefined
     }).catch(error => console.log(error))
 }
+
+export const getSchoolIsAdm = async (schoolID, db) => {
+    return await db.select("schoolAdm").from("schools").where({"schoolID": schoolID}).then(data => {
+        return data[0] ? data[0].schoolAdm : undefined
+    }).catch(error => console.log(error))
+}

@@ -5,6 +5,8 @@ import {
     getDepartmentCountBySchoolID,
     getUserCountBySchoolID
 } from "../../../functions/countGetters.js";
+import {getSchoolIsAdm} from "../../../functions/dataGetters.js";
+import {getSchoolAdmID} from "../../../functions/idGetters.js";
 
 export const getSchools = (req, res, db) => {
 
@@ -18,15 +20,18 @@ export const getSchools = (req, res, db) => {
     verifyUserInfo(userID, db).then(user => {
         if(user.userType>=2){
 
-            db.select("schoolID", "schoolName")
+            const schoolAdm = getSchoolAdmID(db)
+
+            db.select("schoolID", "schoolName", "schoolAdm")
                 .from("schools")
-                .orderBy("schoolName")
+                .orderBy([{column: "schoolAdm", order: "desc"}, {column: "schoolName", order: "asc"}])
                 .then(async data => {
                     let response = []
                     for (const item of data) {
                         const degree = {
                             schoolName: item.schoolName,
                             schoolID: item.schoolID,
+                            schoolAdm: item.schoolAdm,
                             degreeCount: await getDegreeCountBySchoolID(item.schoolID, db),
                             courseCount: await getCourseCountBySchoolID(item.schoolID, db),
                             departmentCount: await getDepartmentCountBySchoolID(item.schoolID, db),
