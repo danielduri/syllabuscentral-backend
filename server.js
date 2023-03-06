@@ -1,12 +1,9 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import knex from "knex";
-if (process.env.NODE_ENV !== 'production') {
-    import('dotenv').then(dotenv => dotenv.config());
-}
 import cors from "cors";
 import {handleSignIn} from "./controllers/signIn.js";
-import {verifyToken} from "./functions/verifyToken.js";
+import {getUserFromToken, verifyToken} from "./functions/verifyToken.js";
 import {userInfo} from "./controllers/userInfo.js";
 import {createUser} from "./controllers/userActions/createUser.js";
 import {changeEmail} from "./controllers/userActions/changeEmail.js";
@@ -49,10 +46,13 @@ import {deleteUser} from "./controllers/identityManagement/deleteUser.js";
 import {editUser} from "./controllers/identityManagement/editUser.js";
 import {installation} from "./controllers/installation.js";
 import {promoteUser} from "./controllers/identityManagement/promoteUser.js";
-
 import ExpressWs from 'express-ws';
 import fs from "fs";
 import * as path from "path";
+import {verifyUserInfo} from "./functions/verifyUser.js";
+if (process.env.NODE_ENV !== 'production') {
+    import('dotenv').then(dotenv => dotenv.config());
+}
 const app = express();
 app.use(cors())
 let expressWsInstance = ExpressWs(app);
@@ -82,7 +82,6 @@ if(process.env.NODE_ENV === 'production'){
 }
 
 let filename = ""
-const fileLocation = "pdfs"
 
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb', extended: true}));
@@ -146,7 +145,7 @@ app.post('/uploadDoc', upload.single('file'), function (req, res) {
 
  */
 
-app.ws('/uploadDoc', (ws, req) => {
+app.ws('/uploadDoc', (ws) => {
 
     let stream
 
@@ -160,11 +159,21 @@ app.ws('/uploadDoc', (ws, req) => {
         if(typeof msg === 'string'){
             try{
                 const data = JSON.parse(msg)
-                filename=data.name.substring(0, data.name.length-4) + '-' + uniqueSuffix + data.name.substring(data.name.length-4)
-                console.log(filename)
-                ws.send("name")
-                const filePath = path.join(pdfDir, filename);
-                stream = fs.createWriteStream(filePath);
+                const token = data.token
+                const user = getUserFromToken(token)
+                if(typeof user === 'string'){
+                    ws.send("error")
+                    ws.close()
+                    return
+                }
+                verifyUserInfo(user, db).then((user) => {
+                    console.log(user)
+                    filename=data.name.substring(0, data.name.length-4) + '-' + uniqueSuffix + data.name.substring(data.name.length-4)
+                    console.log(filename)
+                    ws.send("name")
+                    const filePath = path.join(pdfDir, filename);
+                    stream = fs.createWriteStream(filePath);
+                })
             }catch (e) {
                 console.log(e)
             }
@@ -174,6 +183,7 @@ app.ws('/uploadDoc', (ws, req) => {
                 console.log("Written");
                 ws.send("file")
                 uploadDoc(ws, filename, pdfDir)
+                stream.end();
             }else{
                 ws.send("error")
                 ws.close()
@@ -183,24 +193,23 @@ app.ws('/uploadDoc', (ws, req) => {
 
     ws.on('close', () => {
         console.log("Close");
-        stream.end();
     });
 
 })
 
-/*
-app.ws('/wstest', function(ws, req) {
-    ws.send("Hello")
-    ws.on('message', function(msg) {
-        console.log(msg);
-        ws.send(msg)
-        if (msg === 'close') {
-            ws.close();
-        }
+if (process.env.NODE_ENV !== 'production') {
+    app.ws('/wstest', function(ws, req) {
+        ws.send("Hello")
+        ws.on('message', function(msg) {
+            console.log(msg);
+            ws.send(msg)
+            if (msg === 'close') {
+                ws.close();
+            }
+        });
+        console.log('socket', req.testing);
     });
-    console.log('socket', req.testing);
-});
- */
+}
 
 app.get('/install', (req, res) => installation(req, res, db, bcrypt))
 
