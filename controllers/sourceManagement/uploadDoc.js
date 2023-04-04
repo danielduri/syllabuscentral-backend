@@ -10,8 +10,18 @@ const parseDocument = (docName, docLocation, ws) => {
         ws.send(JSON.stringify(r));
         ws.close()
     }).catch((e) => {
+        try{
+            if(e.details.error.innererror.code==="InvalidContent"){
+                ws.send("InvalidFile")
+            }else{
+                ws.send("error")
+                console.log("Azure ", e)
+            }
+        }catch (err){
             ws.send("error")
             console.log("Azure ", e)
+        }
+
     })
     /*
     const pdfParser = new PDFParser();

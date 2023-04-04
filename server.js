@@ -50,6 +50,7 @@ import ExpressWs from 'express-ws';
 import fs from "fs";
 import * as path from "path";
 import {verifyUserInfo} from "./functions/verifyUser.js";
+import {handleMsg, returnDummyArray} from "./controllers/recommendations/handleMsg.js";
 if (process.env.NODE_ENV !== 'production') {
     import('dotenv').then(dotenv => dotenv.config());
 }
@@ -138,6 +139,10 @@ app.post('/newUser', verifyToken, (req, res) => newUser(req, res, db, bcrypt));
 app.put('/deleteUser', verifyToken, (req, res) => deleteUser(req, res, db));
 app.put('/promoteUser', verifyToken, (req, res) => promoteUser(req, res, db));
 
+app.post('/recommendations', verifyToken, (req, res) => handleMsg(req, res));
+app.post('/recommendationsTest', verifyToken, (req, res) => returnDummyArray(req, res));
+
+
 /*
 app.post('/uploadDoc', upload.single('file'), function (req, res) {
     res.json("OK")
@@ -167,7 +172,6 @@ app.ws('/uploadDoc', (ws) => {
                     return
                 }
                 verifyUserInfo(user, db).then((user) => {
-                    console.log(user)
                     filename=data.name.substring(0, data.name.length-4) + '-' + uniqueSuffix + data.name.substring(data.name.length-4)
                     console.log(filename)
                     ws.send("name")
@@ -201,13 +205,12 @@ if (process.env.NODE_ENV !== 'production') {
     app.ws('/wstest', function(ws, req) {
         ws.send("Hello")
         ws.on('message', function(msg) {
-            console.log(msg);
             ws.send(msg)
             if (msg === 'close') {
                 ws.close();
             }
         });
-        console.log('socket', req.testing);
+        console.log('socket');
     });
 }
 

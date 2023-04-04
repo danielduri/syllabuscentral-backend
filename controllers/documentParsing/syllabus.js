@@ -30,6 +30,17 @@ export class Syllabus {
 
     literature: string[];
 
+    Escribe una guía docente para una asignatura llamada "Introducción a la programación" para la facultad de informática en la que se incluyan los siguientes apartados:
+    Contenidos mínimos (minContents)
+    Programa (program)
+    Competencias básicas (basic)
+    Competencias generales (general)
+    Competencias específicas (specific)
+    Resultados de aprendizaje (results)
+    Evaluación (evaluation)
+    Bibliografía (literature)
+    Envíalo en formato JSON con los nombres de las propiedades indicados entre paréntesis.
+
      */
 
     constructor(

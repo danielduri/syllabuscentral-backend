@@ -87,38 +87,40 @@ export const modelViewer = (req, res, db) => {
                         const rawName = rawify(str)
 
                         const p1 = db.select('degreeDisplayName', 'degreeID', 'degreeDuration').from('degrees').where({'degreeRawName': rawName}).then(async data => {
-                            resp.degree = data[0]
-                            resp.duration = data[0].degreeDuration
-                            await db.select('subjectName', 'subjectID').from('subjects').where({'subjectDegree': data[0].degreeID}).then(async data => {
-                                resp.subjects = data
+                            if(data[0]){
+                                resp.degree = data[0]
+                                resp.duration = data[0].degreeDuration
 
-                                if (subject) {
-                                    await getSubjectIDFromName(subject, resp.degree.degreeID, db).then(data => {
-                                        resp.subject = data
-                                    }).catch(error => console.log(error))
-                                }
-                            }).catch(error => console.log(error))
+                                await db.select('subjectName', 'subjectID').from('subjects').where({'subjectDegree': data[0].degreeID}).then(async data => {
+                                    resp.subjects = data
 
-                            await db.select('moduleName', 'moduleID').from('modules').where({'moduleDegree': data[0].degreeID}).then(async data => {
-                                resp.modules = data
+                                    if (subject) {
+                                        await getSubjectIDFromName(subject, resp.degree.degreeID, db).then(data => {
+                                            resp.subject = data
+                                        }).catch(error => console.log(error))
+                                    }
+                                }).catch(error => console.log(error))
 
-                                if (module) {
-                                    await getModuleIDFromName(module, resp.degree.degreeID, db).then(data => {
-                                        resp.module = data
-                                    }).catch(error => console.log(error));
-                                }
-                            }).catch(error => console.log(error))
+                                await db.select('moduleName', 'moduleID').from('modules').where({'moduleDegree': data[0].degreeID}).then(async data => {
+                                    resp.modules = data
 
+                                    if (module) {
+                                        await getModuleIDFromName(module, resp.degree.degreeID, db).then(data => {
+                                            resp.module = data
+                                        }).catch(error => console.log(error));
+                                    }
+                                }).catch(error => console.log(error))
+                            }
                         }).catch(error => console.log(error))
 
                         promises.push(p1)
+
                     } catch (error) {
                         console.log("error", error)
                     }
                 }
 
                 if (department) {
-
                     if (user.userType >= 1) {
                         const p2 = getDepartmentIDFromName(department, user.schoolID, db).then(async data => {
                             resp.department = data
