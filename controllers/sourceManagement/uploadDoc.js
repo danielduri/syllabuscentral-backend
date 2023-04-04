@@ -5,18 +5,19 @@ const parseDocument = (docName, docLocation, ws) => {
     const file = fs.createReadStream(`${docLocation}/${docName}`)
     recognize(file, ws).then(r => {
         r.status = "OK"
-        fs.unlinkSync(`${docLocation}/${docName}`)
         console.log(r)
         ws.send(JSON.stringify(r));
         ws.close()
+        fs.unlinkSync(`${docLocation}/${docName}`)
     }).catch((e) => {
+        fs.unlinkSync(`${docLocation}/${docName}`)
         try{
             if(e.details.error.innererror.code==="InvalidContent"){
                 ws.send("InvalidFile")
             }else{
                 ws.send("error")
-                console.log("Azure ", e)
             }
+            console.log("Azure ", e)
         }catch (err){
             ws.send("error")
             console.log("Azure ", e)

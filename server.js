@@ -172,7 +172,8 @@ app.ws('/uploadDoc', (ws) => {
                     return
                 }
                 verifyUserInfo(user, db).then((user) => {
-                    filename=data.name.substring(0, data.name.length-4) + '-' + uniqueSuffix + data.name.substring(data.name.length-4)
+                    const ext = data.name.split('.').pop();
+                    filename = data.name.substring(0, data.name.length - (ext.length + 1)) + '-' + uniqueSuffix + '.' + ext;
                     console.log(filename)
                     ws.send("name")
                     const filePath = path.join(pdfDir, filename);

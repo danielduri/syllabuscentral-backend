@@ -1,6 +1,5 @@
 export const createUser = async (req, res, db, bcrypt) => {
     const {email, password, userName, departmentID} = req.body;
-    //TODO only userTypes 1 and 2 can createUser. schoolID comes from JWTtoken.
 
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
