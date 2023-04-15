@@ -95,8 +95,8 @@ export const modelViewer = (req, res, db) => {
                                     resp.subjects = data
 
                                     if (subject) {
-                                        await getSubjectIDFromName(subject, resp.degree.degreeID, db).then(data => {
-                                            resp.subject = data
+                                        await getSubjectIDFromName(subject, resp.degree.degreeID, db).then(subjectID => {
+                                            resp.subjectID = subjectID
                                         }).catch(error => console.log(error))
                                     }
                                 }).catch(error => console.log(error))
@@ -105,8 +105,8 @@ export const modelViewer = (req, res, db) => {
                                     resp.modules = data
 
                                     if (module) {
-                                        await getModuleIDFromName(module, resp.degree.degreeID, db).then(data => {
-                                            resp.module = data
+                                        await getModuleIDFromName(module, resp.degree.degreeID, db).then(moduleID => {
+                                            resp.moduleID = moduleID
                                         }).catch(error => console.log(error));
                                     }
                                 }).catch(error => console.log(error))
@@ -123,11 +123,12 @@ export const modelViewer = (req, res, db) => {
                 if (department) {
                     if (user.userType >= 1) {
                         const p2 = getDepartmentIDFromName(department, user.schoolID, db).then(async data => {
-                            resp.department = data
-                            await db.select('userName', 'userID').from('users').where({'departmentID': data}).then(data => {
-                                resp.coordinators = data
-                            }).catch(error => console.log(error))
-
+                            if(data!==undefined){
+                                resp.department = data
+                                await db.select('userName', 'userID').from('users').where({'departmentID': data}).then(data => {
+                                    resp.coordinators = data
+                                }).catch(error => console.log(error))
+                            }
                         }).catch(error => console.log(error))
                         promises.push(p2)
                     } else {

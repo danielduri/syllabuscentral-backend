@@ -12,8 +12,13 @@ export function getDepartmentIDFromShorthand (departmentShorthand, schoolID, db)
 
 export function getModuleIDFromName (moduleName, degreeID, db) {
     return db.select('moduleID').from('modules').where({'moduleName': moduleName, 'moduleDegree': degreeID}).then(data => {
-        //TODO safe usage
-        return data[0];
+        return data[0] ? data[0].moduleID : undefined;
+    }).catch(error => console.log(error))
+}
+
+export function getSubjectIDFromName (subjectName, degreeID, db) {
+    return db.select('subjectID').from('subjects').where({'subjectName': subjectName, 'subjectDegree': degreeID}).then(data => {
+        return data[0] ? data[0].subjectID : undefined;
     }).catch(error => console.log(error))
 }
 
@@ -26,13 +31,6 @@ export function getModuleIDFromCourseID (courseID, schoolID, db) {
 export function getSubjectIDFromCourseID (courseID, schoolID, db) {
     return db.select('subjectID').from('courses').where({'courseid': courseID, 'schoolID': schoolID}).then(data => {
         return data[0] ? data[0].subjectID : undefined;
-    }).catch(error => console.log(error))
-}
-
-
-export function getSubjectIDFromName (subjectName, degreeID, db) {
-    return db.select('subjectID').from('subjects').where({'subjectName': subjectName, 'subjectDegree': degreeID}).then(data => {
-        return data[0];
     }).catch(error => console.log(error))
 }
 

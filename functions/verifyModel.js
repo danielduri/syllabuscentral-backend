@@ -102,11 +102,11 @@ export const verifySubject = async (model, db) => {
             }
         })
     }else{
-        return await getSubjectIDFromName(model.subject, model.degree, db).then(data => {
-            if (data===undefined){
+        return await getSubjectIDFromName(model.subject, model.degree, db).then(subjectID => {
+            if (subjectID===undefined){
                 return "create"
             }else{
-                return data.subjectID
+                return subjectID
             }
         })
     }
@@ -120,11 +120,11 @@ export const verifyModule = async (model, db) => {
             }
         })
     }else{
-        return await getModuleIDFromName(model.module, model.degree, db).then(data => {
-            if (data===undefined){
+        return await getModuleIDFromName(model.module, model.degree, db).then(moduleID => {
+            if (moduleID===undefined){
                 return "create"
             }else{
-                return data.moduleID
+                return moduleID
             }
         })
     }

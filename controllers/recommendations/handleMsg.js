@@ -30,12 +30,14 @@ export async function handleMsg(req, res) {
             Return all answers as a parseable ${formatModel} in the following format: ${example}. 
             Do not repeat items if given. Do not add trailing commas in the array. 
             Return the answer in the most raw format possible. Return all answers in Spanish.
+            Provide concrete suggestions that can be written directly into the guide.
+            Don't say how to write the field, provide concrete examples for the field.
             Do not add additional text to the answer. Do not explain or add leading text. Begin all answers with [ and end with ].
             Wrap each item in double quotes, and separate each item with commas.`
         },
         {
             role: "user",
-            content: `Escribe sugerencias para el campo ${field} de una guía docente para la asignatura ${title} (${degree}), ${completionMessage} en formato ${formatModel} crudo.`
+            content: `Escribe sugerencias concretas para el campo ${field} de una guía docente para la asignatura ${title} (${degree}), ${completionMessage} en formato ${formatModel} crudo.`
         }
     ];
 
