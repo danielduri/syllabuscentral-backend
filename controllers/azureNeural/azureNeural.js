@@ -87,8 +87,7 @@ export async function recognize(file, ws) {
         }),
 
         fields.results.values ? extractContent(fields.results.values) : [],
-        //TODO extract content evaluation. Retrain model.
-        fields.evaluation.value ? fields.evaluation.value : "",
+        fields.evaluation.values ? extractContent(fields.evaluation.values) : [],
         fields.literature.values ? extractContent(fields.literature.values) : []
 
     )
