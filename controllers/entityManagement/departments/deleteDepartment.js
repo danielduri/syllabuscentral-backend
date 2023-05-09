@@ -20,6 +20,9 @@ export function deleteDepartment(req, res, db){
             db("departments").where({"departmentID": departmentID}).returning("departmentID").del().then(id => {
                 console.log("Deleted ", id[0])
                 res.json("OK")
+            }).catch(e => {
+                console.log(e)
+                res.status(400).json("Database error")
             })
         }else {
             res.status(500).json("Forbidden action")

@@ -131,3 +131,9 @@ export const getSchoolAdmID = async (db) => {
         return data[0] ? data[0].schoolID : undefined
     }).catch(error => console.log(error))
 }
+
+export const getSuperadminUserID = async (db) => {
+    return await db.select("userID").from("users").where("userType", "=", 2).then(data => {
+        return data[0] ? data[0].userID : undefined
+    }).catch(error => console.log(error))
+}

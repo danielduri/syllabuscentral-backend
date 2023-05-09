@@ -1,6 +1,6 @@
 import {verifyUserInfo} from "../../functions/verifyUser.js";
 import {isEditable} from "./getUsers.js";
-import {getUserIDFromEmail, getUserIDFromName} from "../../functions/idGetters.js";
+import {getSuperadminUserID, getUserIDFromEmail, getUserIDFromName} from "../../functions/idGetters.js";
 import {validateEmail} from "../userActions/changeEmail.js";
 import {validatePassword} from "../userActions/changePassword.js";
 import {validateName} from "../userActions/changeName.js";
@@ -104,6 +104,16 @@ export async function editUser(req, res, db, bcrypt) {
                                 .catch(err => {
                                     console.log(err)
                                 })
+                        )
+                        promises.push(
+                            getSuperadminUserID(db).then(superadminID => {
+                                trx.from('courses').update({
+                                    coordinatorID: superadminID
+                                }).where({coordinatorID: userEdit})
+                                    .catch(err => {
+                                        console.log(err)
+                                    })
+                            })
                         )
                     }
 
