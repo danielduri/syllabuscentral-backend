@@ -56,7 +56,7 @@ import {
 } from "./controllers/recommendations/handleMsg.js";
 
 if (process.env.NODE_ENV !== "production") {
-  import("dotenv").then((dotenv) => dotenv.config());
+  await import("dotenv").then((dotenv) => dotenv.config());
 }
 const app = express();
 app.use(cors());
@@ -67,7 +67,7 @@ let db = knex({
   client: "pg",
   connection: {
     host: "localhost",
-    port: 6000,
+    port: process.env.DB_PORT || 5432,
     user: "",
     password: "",
     database: "postgres",

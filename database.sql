@@ -1,3 +1,5 @@
+create database
+
 create sequence "courses_courseID_seq"
     as integer;
 
