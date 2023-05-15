@@ -68,9 +68,9 @@ let db = knex({
   connection: {
     host: "localhost",
     port: process.env.DB_PORT || 5432,
-    user: "",
-    password: "",
-    database: "postgres",
+    user: process.env.DB_USER || "",
+    password: process.env.DB_PASSWORD || "",
+    database: process.env.DB_NAME || "postgres",
   },
 });
 
