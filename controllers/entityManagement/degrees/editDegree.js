@@ -13,15 +13,14 @@ export async function editDegree(req, res, db) {
         return;
     }
 
-    if(!validateName(name)){
-        res.status(400).json('bad name');
-        return;
-    }
-
     verifyUserInfo(userID, db).then(async user => {
         if(user.userType>=1){
             let cont=true;
             if(name){
+                if(!validateName(name)){
+                    res.status(400).json('bad name');
+                    return;
+                }
                 const rawName=rawify(name)
                 if(await getDegreeIDFromRawName(rawName, user.schoolID, db)===undefined){
                     db("degrees").update({

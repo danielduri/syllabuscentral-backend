@@ -3,6 +3,7 @@ import {
     getDepartmentIDFromName,
     getDepartmentIDFromShorthand
 } from "../../../functions/idGetters.js";
+import {validateName} from "../../userActions/changeName.js";
 
 export async function editDepartment(req, res, db) {
     const {departmentID, name, shorthand} = req.body;
@@ -17,6 +18,10 @@ export async function editDepartment(req, res, db) {
         if(user.userType>=1){
             let cont=true;
             if(name){
+                if(!validateName(name)){
+                    res.status(400).json('invalid name');
+                    return;
+                }
                 if(await getDepartmentIDFromName(name, user.schoolID, db)!==undefined){
                     cont=false
                     res.json("used name")

@@ -1,5 +1,6 @@
 import {verifyUserInfo} from "../../../functions/verifyUser.js";
 import {getDepartmentIDFromName, getDepartmentIDFromShorthand} from "../../../functions/idGetters.js";
+import {validateName} from "../../userActions/changeName.js";
 
 export async function newDepartment(req, res, db) {
     const {name, shorthand} = req.body;
@@ -12,6 +13,10 @@ export async function newDepartment(req, res, db) {
 
     verifyUserInfo(userID, db).then(async user => {
         if(user.userType>=1){
+            if(!validateName(name)){
+                res.status(400).json('bad name');
+                return;
+            }
             if(await getDepartmentIDFromName(name, user.schoolID, db)===undefined){
                 if(await getDepartmentIDFromShorthand(shorthand, user.schoolID, db)===undefined) {
                     db.insert({

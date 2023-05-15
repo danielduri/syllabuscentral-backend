@@ -13,13 +13,12 @@ export async function newDegree(req, res, db) {
         return;
     }
 
-    if(!validateName(name)){
-        res.status(400).json('bad name');
-        return;
-    }
-
     verifyUserInfo(userID, db).then(async user => {
         if(user.userType>=1){
+            if(!validateName(name)){
+                res.status(400).json('bad name');
+                return;
+            }
             const rawName=rawify(name)
             if(await getDegreeIDFromRawName(rawName, user.schoolID, db)===undefined &&
                 await getUserTypeFromUserID(coordinator, db)>=1 &&
