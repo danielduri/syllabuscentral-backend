@@ -2,6 +2,7 @@ import {verifyUserInfo} from "../../../functions/verifyUser.js";
 import {getDegreeIDFromRawName, getSchoolIDFromUserID} from "../../../functions/idGetters.js";
 import {rawify} from "../../../functions/misc.js";
 import {getUserTypeFromUserID} from "../../../functions/dataGetters.js";
+import {validateName} from "../../userActions/changeName.js";
 
 export async function newDegree(req, res, db) {
     const {name, duration, coordinator} = req.body;
@@ -9,6 +10,11 @@ export async function newDegree(req, res, db) {
 
     if (!userID || !name || !duration || !coordinator) {
         res.status(400).json('incorrect form submission');
+        return;
+    }
+
+    if(!validateName(name)){
+        res.status(400).json('bad name');
         return;
     }
 
